@@ -1,0 +1,66 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Install updates (Ubuntu)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install updates (CentOS)
+      tags: always
+      dnf:
+        name: '*'
+        state: latest
+        use_backend: dnf
+      when: ansible_distribution == "CentOS"
+
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Prometheus (Ubuntu)
+      apt:
+        name: prometheus
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Download Prometheus (CentOS)
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.30.3/prometheus-2.30.3.linux-amd64.tar.gz"
+        dest: /tmp/prometheus.tar.gz
+      when: ansible_distribution == "CentOS"
+
+    - name: Extract Prometheus (CentOS)
+      unarchive:
+        src: /tmp/prometheus.tar.gz
+        dest: /opt/
+        remote_src: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: Set up Prometheus service (CentOS)
+      copy:
+        content: |
+          [Unit]
+          Description=Prometheus
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          Type=simple
+          ExecStart=/opt/prometheus/prometheus
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/prometheus.service
+      notify:
+        - Reload systemd
+      when: ansible_distribution == "CentOS"
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes

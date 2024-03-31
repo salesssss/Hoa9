@@ -1,0 +1,64 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - name: Update packages (Ubuntu)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Update packages (CentOS)
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: yes
+        use_backend: dnf4   # Explicitly specify the backend
+      when: ansible_distribution == "CentOS"
+
+    - name: Install Nagios (Ubuntu)
+      apt:
+        name: nagios4
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Nagios (CentOS)
+      dnf:
+        name: nagios
+        state: latest
+        update_cache: yes
+        use_backend: dnf4   # Explicitly specify the backend
+      when: ansible_distribution == "CentOS"
+- hosts: all
+  become: true
+  tasks:
+    - name: Update packages (Ubuntu)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Update packages (CentOS)
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: yes
+        use_backend: dnf4   # Explicitly specify the backend
+      when: ansible_distribution == "CentOS"
+
+    - name: Install Nagios (Ubuntu)
+      apt:
+        name: nagios4
+        state: latest
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Nagios (CentOS)
+      dnf:
+        name: nagios
+        state: latest
+        update_cache: yes
+        use_backend: dnf4   # Explicitly specify the backend
+      when: ansible_distribution == "CentOS"
